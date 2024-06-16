@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:TopoSmart/presentation/pages/loginpage.dart';
-/*import 'package:TopoSmart/pages/signuppage.dart';*/
+import 'package:TopoSmart/presentation/pages/signuppage.dart';
 
 
 class MyPrincipalPage extends StatefulWidget {
@@ -49,7 +49,6 @@ class _MyPrincipalPageState extends State<MyPrincipalPage> {
               ),
               Container(
                 height: screenHeigh * 0.2,
-                color: Colors.white,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -74,10 +73,10 @@ class _MyPrincipalPageState extends State<MyPrincipalPage> {
                     SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
-                       /* Navigator.push(
+                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MyLoginPage(title: 'Inicio de sesión')), // Navega a la vista LoginPage
-                      );*/
+                        MaterialPageRoute(builder: (context) => MySignUpPage(title: '')),
+                      );
                         },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorpage,

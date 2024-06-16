@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:TopoSmart/presentation/pages/signuppage.dart';
 
 class MyLoginPage extends StatefulWidget {
   const MyLoginPage({super.key, required this.title});
@@ -149,7 +150,6 @@ class _MyLoginPageState extends State<MyLoginPage> {
             SizedBox(height: screenHeigh * 0.1),
             Container(
               height: screenHeigh * 0.1,
-              color: Colors.white,
               child: Column(
                 children: [
                   ElevatedButton(
@@ -171,14 +171,18 @@ class _MyLoginPageState extends State<MyLoginPage> {
                     ),
                   ),
                   SizedBox(height: screenHeigh * 0.01),
-                  Text('¿Ya tienes cuenta? Registrarse', style: TextStyle(color: letraA, fontFamily: "Lato-Italic", fontSize: 13,),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MySignUpPage(title: '')),
+                      );
+                    },
+                    child: Text(
+                      '¿No tienes cuenta? Registrate',
+                      style: TextStyle(color: letraA, fontFamily: "Lato-Italic", fontSize: 13),
+                    ),
                   ),
-                 /* onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SecondPage()),
-                    );
-                  },*/
                 ],
               ),
             )
