@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-/*import 'package:TopoSmart/pages/loginpage.dart';
-import 'package:TopoSmart/pages/signuppage.dart';*/
+import 'package:TopoSmart/presentation/pages/loginpage.dart';
+/*import 'package:TopoSmart/pages/signuppage.dart';*/
 
 
 class MyPrincipalPage extends StatefulWidget {
@@ -34,13 +34,13 @@ class _MyPrincipalPageState extends State<MyPrincipalPage> {
                 child: Stack(
                   children: [
                     Image.asset(
-                      'assets/img/fondo.png', // Ruta de la imagen de fondo
+                      'assets/img/fondo.png',
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
                     Center(
                       child: Image.asset(
-                        'assets/img/principal.png', // Ruta de la imagen en primer plano
+                        'assets/img/principal.png',
                         height: 225,
                       ),
                     ),
@@ -55,10 +55,10 @@ class _MyPrincipalPageState extends State<MyPrincipalPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                       /* Navigator.push(
+                       Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => MyLoginPage(title: '')), // Navega a la vista LoginPage
-                        );*/
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: buttonI,
@@ -68,15 +68,15 @@ class _MyPrincipalPageState extends State<MyPrincipalPage> {
                       ),
                       child: Text(
                         'Iniciar sesión',
-                        style: TextStyle(color: Colors.white, fontFamily: 'Lato', fontSize: 15),
+                        style: TextStyle(color: letraA, fontFamily: 'Lato-Regular', fontSize: 15),
                       ),
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
-                        /*Navigator.push(
+                       /* Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MyLogInPage(title: 'login')), // Navega a la vista LoginPage
+                        MaterialPageRoute(builder: (context) => MyLoginPage(title: 'Inicio de sesión')), // Navega a la vista LoginPage
                       );*/
                         },
                       style: ElevatedButton.styleFrom(
@@ -87,7 +87,7 @@ class _MyPrincipalPageState extends State<MyPrincipalPage> {
                       ),
                       child: Text(
                         'Registrarse',
-                        style: TextStyle(color: Colors.white, fontFamily: 'Lato', fontSize: 15),
+                        style: TextStyle(color: Colors.white, fontFamily: 'Lato-Regular', fontSize: 15),
                       ),
                     ),
                   ],
