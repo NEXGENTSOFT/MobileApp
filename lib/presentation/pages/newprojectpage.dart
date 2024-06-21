@@ -1,32 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:TopoSmart/presentation/pages/signuppage.dart';
-import 'package:TopoSmart/presentation/pages/homepage.dart';
 
-class MyLoginPage extends StatefulWidget {
-  const MyLoginPage({super.key, required this.title});
-
+class MyNewProjectPage extends StatefulWidget {
+  const MyNewProjectPage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<MyLoginPage> createState() => _MyLoginPageState();
-
+  State<MyNewProjectPage> createState() => _MyNewProjectPageState();
 }
 
-class _MyLoginPageState extends State<MyLoginPage> {
+class _MyNewProjectPageState extends State<MyNewProjectPage> {
   Color colorpage = Color(0xFF4A4E69);
   Color buttonIN = Color(0xFFD2A351);
   Color letraA = Color(0xFF22223B);
   Color uno = Color(0xFFF2E9E4);
   Color label = Color(0xFFB78471);
 
-  bool _obscureText = true;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
-  void _toggleObscureText() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });}
-
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,43 +35,31 @@ class _MyLoginPageState extends State<MyLoginPage> {
         backgroundColor: uno,
         title: Text(widget.title),
       ),
-      body:  SingleChildScrollView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-         // mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: screenHeigh * 0.26,
+              height: screenHeigh * 0.1,
               child: Stack(
-                alignment: Alignment.center,
                 children: [
-                  Image.asset(
-                    'assets/img/Ellipse.png',
-                    width: 180,
-                    height: 180,
-                  ),
-                  Image.asset(
-                    'assets/img/login.png',
-                    width: 132,
-                    height: 207,
+                  Text(
+                    'Nuevo proyecto',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontFamily: 'Lato',
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
             ),
-            Text(
-              'Inicio de sesión',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-               fontFamily: 'Lato',
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: screenHeigh * 0.05),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Nombre',
+                'Nombre del proyecto',
                 style: TextStyle(
                   fontFamily: 'Lato-Right',
                   fontSize: 18,
@@ -82,8 +68,9 @@ class _MyLoginPageState extends State<MyLoginPage> {
             ),
             SizedBox(height: screenHeigh * 0.01),
             TextField(
+              controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'Nombre',
+                labelText: 'Nombre del proyecto',
                 filled: true,
                 fillColor: label.withOpacity(0.5),
                 border: OutlineInputBorder(
@@ -99,35 +86,31 @@ class _MyLoginPageState extends State<MyLoginPage> {
                 labelStyle: TextStyle(
                   color: letraA,
                   fontFamily: 'Lato-Light',
-                  fontSize: 13
+                  fontSize: 13,
                 ),
               ),
-              style: TextStyle(color: letraA, fontSize: 13, fontFamily: "Lato-Light"),
+              style: TextStyle(
+                color: letraA,
+                fontSize: 13,
+                fontFamily: "Lato-Light",
+              ),
             ),
-            SizedBox(height: screenHeigh * 0.03),
+            SizedBox(height: screenHeigh * 0.04),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Contraseña',
+                'Descripción del proyecto',
                 style: TextStyle(
-                   fontFamily: 'Lato-Thin',
+                  fontFamily: 'Lato-Right',
                   fontSize: 18,
-                  // fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             SizedBox(height: screenHeigh * 0.01),
             TextField(
-              obscureText: _obscureText,
+              controller: _descriptionController,
               decoration: InputDecoration(
-                labelText: 'Contraseña',
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscureText ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined,
-                    color: letraA,
-                  ),
-                  onPressed: _toggleObscureText,
-                ),
+                labelText: 'Descripción del proyecto',
                 filled: true,
                 fillColor: label.withOpacity(0.5),
                 border: OutlineInputBorder(
@@ -139,57 +122,56 @@ class _MyLoginPageState extends State<MyLoginPage> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: label),
-                  borderRadius: BorderRadius.circular(15),
                 ),
                 labelStyle: TextStyle(
                   color: letraA,
-                  fontFamily: 'Lato-Right', fontSize: 13,
+                  fontFamily: 'Lato-Light',
+                  fontSize: 13,
                 ),
               ),
-              style: TextStyle(color: letraA, fontSize: 13, fontFamily: "Lato-Right"),
+              style: TextStyle(
+                color: letraA,
+                fontSize: 13,
+                fontFamily: "Lato-Light",
+              ),
             ),
             SizedBox(height: screenHeigh * 0.1),
             Container(
-              height: screenHeigh * 0.1,
-              child: Column(
-                children: [
-                  ElevatedButton(
+              child: Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MyHomePage(title: '')),
-                      );
+                      if (_nameController.text.isNotEmpty && _descriptionController.text.isNotEmpty) {
+                        Navigator.pop(context, {
+                          'name': _nameController.text,
+                          'description': _descriptionController.text,
+                        });
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: buttonIN,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),
+                      padding: EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      'Iniciar sesión',
-                      style: TextStyle(color: Colors.white, fontFamily: "Lato-Regular", fontSize: 15),
+                      'Guardar',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: "Lato-Regular",
+                        fontSize: 15,
+                      ),
                     ),
                   ),
-                  SizedBox(height: screenHeigh * 0.01),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MySignUpPage(title: '')),
-                      );
-                    },
-                    child: Text(
-                      '¿No tienes cuenta? Registrate',
-                      style: TextStyle(color: letraA, fontFamily: "Lato-Italic", fontSize: 13),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            )
-    ],
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
