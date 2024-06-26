@@ -1,5 +1,7 @@
-import 'package:TopoSmart/presentation/pages/principalpage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as picker;
+import 'package:intl/intl.dart';
+import 'package:TopoSmart/presentation/pages/principalpage.dart';
 import 'package:TopoSmart/presentation/pages/loginpage.dart';
 
 class MySignUpPage extends StatefulWidget {
@@ -18,12 +20,37 @@ class _MySignUpPageState extends State<MySignUpPage> {
   Color uno = Color(0xFFF2E9E4);
   Color label = Color(0xFFB78471);
 
-  bool _obscureText = true;
+  bool _obscureTextPassword = true;
+  bool _obscureTextConfirmPassword = true;
+  TextEditingController _dateController = TextEditingController();
 
-  void _toggleObscureText() {
+  void _toggleObscureTextPassword() {
     setState(() {
-      _obscureText = !_obscureText;
+      _obscureTextPassword = !_obscureTextPassword;
     });
+  }
+
+  void _toggleObscureTextConfirmPassword() {
+    setState(() {
+      _obscureTextConfirmPassword = !_obscureTextConfirmPassword;
+    });
+  }
+
+  void _selectDate(BuildContext context) {
+    picker.DatePicker.showDatePicker(
+      context,
+      showTitleActions: true,
+      minTime: DateTime(1900, 1, 1),
+      maxTime: DateTime.now(),
+      onChanged: (date) {
+        print('change $date');
+      },
+      onConfirm: (date) {
+        _dateController.text = DateFormat('yyyy-MM-dd').format(date);
+      },
+      currentTime: DateTime.now(),
+      locale: picker.LocaleType.en, // Assuming you want English locale
+    );
   }
 
   @override
@@ -220,15 +247,15 @@ class _MySignUpPageState extends State<MySignUpPage> {
               ),
               SizedBox(height: screenHeight * 0.01),
               TextField(
-                obscureText: _obscureText,
+                obscureText: _obscureTextPassword,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscureText ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined,
+                      _obscureTextPassword ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined,
                       color: letraA,
                     ),
-                    onPressed: _toggleObscureText,
+                    onPressed: _toggleObscureTextPassword,
                   ),
                   filled: true,
                   fillColor: label.withOpacity(0.5),
@@ -264,15 +291,15 @@ class _MySignUpPageState extends State<MySignUpPage> {
               ),
               SizedBox(height: screenHeight * 0.01),
               TextField(
-                obscureText: _obscureText,
+                obscureText: _obscureTextConfirmPassword,
                 decoration: InputDecoration(
                   labelText: 'Confirmar contraseña',
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscureText ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined,
+                      _obscureTextConfirmPassword ? Icons.remove_red_eye_outlined : Icons.visibility_off_outlined,
                       color: letraA,
                     ),
-                    onPressed: _toggleObscureText,
+                    onPressed: _toggleObscureTextConfirmPassword,
                   ),
                   filled: true,
                   fillColor: label.withOpacity(0.5),
@@ -306,10 +333,26 @@ class _MySignUpPageState extends State<MySignUpPage> {
                   ),
                 ),
               ),
+              SizedBox(height: screenHeight * 0.03),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Fecha de nacimiento',
+                  style: TextStyle(
+                    fontFamily: 'Lato-Right',
+                    fontSize: 18,
+                  ),
+                ),
+              ),
               SizedBox(height: screenHeight * 0.01),
               TextField(
+                controller: _dateController,
                 decoration: InputDecoration(
                   labelText: 'Fecha de nacimiento',
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.calendar_today, color: letraA),
+                    onPressed: () => _selectDate(context),
+                  ),
                   filled: true,
                   fillColor: label.withOpacity(0.5),
                   border: OutlineInputBorder(

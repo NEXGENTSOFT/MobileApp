@@ -3,6 +3,7 @@ import 'package:TopoSmart/presentation/pages/signuppage.dart';
 import 'package:TopoSmart/presentation/pages/homepage.dart';
 import 'package:TopoSmart/presentation/pages/editprojectpage.dart';
 import 'package:TopoSmart/presentation/pages/newprojectpage.dart';
+import 'package:TopoSmart/presentation/pages/projectpage.dart'; // Asegúrate de tener esta importación
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -67,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: letraA,
                   ),
                 )
-                :ListView.builder(
+                    : ListView.builder(
                   shrinkWrap: true,
                   itemCount: projects.length,
                   itemBuilder: (context, index) {
@@ -132,6 +133,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ],
                       ),
+                      onTap: () {
+                        _navigateToProjectDetailPage(context, projects[index]);
+                      },
                     );
                   },
                 ),
@@ -182,4 +186,14 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+
+  void _navigateToProjectDetailPage(BuildContext context, Map<String, String> project) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyProjectPage(project: project),
+      ),
+    );
+  }
 }
+
