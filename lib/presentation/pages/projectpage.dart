@@ -2,6 +2,7 @@ import 'package:TopoSmart/presentation/pages/drawingpage.dart';
 import 'package:flutter/material.dart';
 import 'package:TopoSmart/presentation/pages/measurementpage.dart';
 import 'package:TopoSmart/presentation/pages/camarapage.dart';
+import 'package:TopoSmart/presentation/pages/reportpage.dart';
 import 'dart:io';
 
 class MyProjectPage extends StatefulWidget {
@@ -123,12 +124,12 @@ class _MyProjectPageState extends State<MyProjectPage> {
             IconButton(
               icon: Icon(Icons.description, color: Colors.white, size: 30),
               onPressed: () {
-                /* Navigator.push(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ProfilePage(),
+                    builder: (context) => MyReportPage(title: (''),),
                   ),
-                );*/
+                );
               },
             ),
           ],

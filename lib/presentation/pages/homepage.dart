@@ -3,7 +3,8 @@ import 'package:TopoSmart/presentation/pages/signuppage.dart';
 import 'package:TopoSmart/presentation/pages/homepage.dart';
 import 'package:TopoSmart/presentation/pages/editprojectpage.dart';
 import 'package:TopoSmart/presentation/pages/newprojectpage.dart';
-import 'package:TopoSmart/presentation/pages/projectpage.dart'; // Asegúrate de tener esta importación
+import 'package:TopoSmart/presentation/pages/projectpage.dart';
+import 'package:TopoSmart/presentation/pages/perfilpage.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -151,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
             _navigateToNewProjectPage(context);
           } else {
             setState(() {
-              _pagehome = index;
+              _navigateToPerfilPage(context);
             });
           }
         },
@@ -178,6 +179,20 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(
         builder: (context) => MyNewProjectPage(title: 'Nuevo Proyecto'),
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        projects.add(result);
+      });
+    }
+  }
+
+  Future<void> _navigateToPerfilPage(BuildContext context) async {
+    var result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyPerfilPage(title: ''),
       ),
     );
     if (result != null) {

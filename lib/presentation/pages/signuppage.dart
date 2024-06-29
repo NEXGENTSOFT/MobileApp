@@ -350,7 +350,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                 decoration: InputDecoration(
                   labelText: 'Fecha de nacimiento',
                   suffixIcon: IconButton(
-                    icon: Icon(Icons.calendar_today, color: letraA),
+                    icon: Icon(Icons.calendar_month_outlined, color: letraA),
                     onPressed: () => _selectDate(context),
                   ),
                   filled: true,
@@ -409,6 +409,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                         style: TextStyle(color: letraA, fontFamily: "Lato-Italic", fontSize: 13),
                       ),
                     ),
+
                   ],
                 ),
               ),

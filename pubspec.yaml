@@ -69,6 +69,11 @@ flutter:
     - assets/img/signup.png
     - assets/img/Ellipse11.png
     - assets/img/casco.png
+    - assets/img/props-financial-reports.png
+    - assets/img/EllipseR.png
+    - assets/img/EllipseP.png
+    - assets/img/EllipseE.png
+    - assets/img/3d-business-young-woman-looking-at-plan.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
