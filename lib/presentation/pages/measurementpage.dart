@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'package:flutter/services.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:TopoSmart/presentation/pages/newmeasurement.dart';
@@ -21,6 +21,26 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
 
   List<Map<String, String>> measurementData = [];
 
+  @override
+  void initState() {
+    super.initState();
+    // Forzar orientación horizontal
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    // Restablecer orientación cuando se salga de esta página
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
+
   void _updateMeasurementData(Map<String, String> newData) {
     setState(() {
       measurementData.add(newData);
@@ -40,12 +60,12 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Contenido de la página de mediciones',
+              'Mediciones',
               style: TextStyle(fontSize: 20),
             ),
             SizedBox(height: 16),
             Table(
-              border: TableBorder.all(color: Colors.transparent), 
+              border: TableBorder.all(color: Colors.transparent),
               children: [
                 _buildTableRow([
                   _buildHeaderCell('EST', backgroundColor: enca),

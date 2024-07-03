@@ -1,8 +1,9 @@
-import 'package:TopoSmart/presentation/pages/drawingpage.dart';
 import 'package:flutter/material.dart';
+import 'package:TopoSmart/presentation/pages/drawingpage.dart';
 import 'package:TopoSmart/presentation/pages/measurementpage.dart';
 import 'package:TopoSmart/presentation/pages/camarapage.dart';
 import 'package:TopoSmart/presentation/pages/reportpage.dart';
+import 'package:TopoSmart/presentation/pages/camaredeletepage.dart';
 import 'dart:io';
 
 class MyProjectPage extends StatefulWidget {
@@ -26,6 +27,9 @@ class _MyProjectPageState extends State<MyProjectPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: uno,
@@ -35,23 +39,50 @@ class _MyProjectPageState extends State<MyProjectPage> {
         index: _pageproject,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.symmetric(horizontal: 0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  widget.project['name'] ?? 'Sin nombre',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Container(
+                  decoration: BoxDecoration(
+                    color: label,
+                  ),
+                  height: screenHeight * 0.15,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          widget.project['name'] ?? 'Sin nombre',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.none, color: letraA
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          widget.project['description'] ?? 'Sin descripción',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w300,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 10),
-                Text(
-                  widget.project['description'] ?? 'Sin descripción',
-                  style: TextStyle(fontSize: 16),
-                ),
-                if (imageFiles.isNotEmpty) ...[
-                  SizedBox(height: 10),
+                SizedBox(height: 20),
+                if (imageFiles.isNotEmpty)
                   Expanded(
                     child: GridView.builder(
+                      padding: EdgeInsets.all(10),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 10,
@@ -59,20 +90,34 @@ class _MyProjectPageState extends State<MyProjectPage> {
                       ),
                       itemCount: imageFiles.length,
                       itemBuilder: (context, index) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(15.0),
-                          child: Image.file(
-                            imageFiles[index],
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
+                        return GestureDetector(
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ConfirmDeletePage(imageFile: imageFiles[index]),
+                              ),
+                            );
+                            if (result == true) {
+                              setState(() {
+                                imageFiles.removeAt(index);
+                              });
+                            }
+                          },
+                          child: Container(
+                            margin: EdgeInsets.all(4),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15.0),
+                              child: Image.file(
+                                imageFiles[index],
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         );
                       },
                     ),
                   ),
-                ],
-                // Agrega más detalles
               ],
             ),
           ),
@@ -127,7 +172,7 @@ class _MyProjectPageState extends State<MyProjectPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MyReportPage(title: (''),),
+                    builder: (context) => MyReportPage(title: ''),
                   ),
                 );
               },

@@ -4,7 +4,7 @@ import 'package:TopoSmart/presentation/pages/homepage.dart';
 import 'package:TopoSmart/presentation/pages/editprojectpage.dart';
 import 'package:TopoSmart/presentation/pages/newprojectpage.dart';
 import 'package:TopoSmart/presentation/pages/projectpage.dart';
-import 'package:TopoSmart/presentation/pages/perfilpage.dart';
+import 'package:TopoSmart/presentation/pages/configurationpage.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -24,6 +24,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int _pagehome = 0;
   List<Map<String, String>> projects = [];
+  List<Map<String, String>> filteredProjects = [];
+
+  @override
+  void initState() {
+    super.initState();
+    filteredProjects = projects;
+  }
+
+  void _filterProjects(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredProjects = projects;
+      } else {
+        filteredProjects = projects
+            .where((project) =>
+        project['name']!.toLowerCase().contains(query.toLowerCase()) ||
+            project['description']!.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,25 +63,64 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  'Proyectos',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontFamily: 'Lato',
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: letraA,
+                  ),
+                ),
+                SizedBox(height: 16.0),
                 Container(
-                  child: Stack(
-                    children: [
-                      Text(
-                        'Proyectos',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontFamily: 'Lato',
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  decoration: BoxDecoration(
+                    color: uno,
+                    borderRadius: BorderRadius.circular(5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(2, 2),
                       ),
                     ],
                   ),
+                  child: TextField(
+                    onChanged: _filterProjects,
+                    decoration: InputDecoration(
+                      labelText: 'Buscar',
+                      prefixIcon: Icon(Icons.search),
+                      filled: true,
+                      fillColor: uno,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: uno),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: uno),
+                      ),
+                      labelStyle: TextStyle(
+                        color: letraA,
+                        fontFamily: 'Lato-Light',
+                        fontSize: 13,
+                      ),
+                    ),
+                    style: TextStyle(
+                      color: letraA,
+                      fontSize: 13,
+                      fontFamily: "Lato-Light",
+                    ),
+                  ),
                 ),
-                SizedBox(height: screenHeigh * 0.05),
+
+                SizedBox(height: 16.0),
                 Text('Clima'),
                 SizedBox(height: screenHeigh * 0.01),
-                projects.isEmpty
+                filteredProjects.isEmpty
                     ? Text(
                   'No hay proyectos guardados',
                   style: TextStyle(
@@ -71,7 +131,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 )
                     : ListView.builder(
                   shrinkWrap: true,
-                  itemCount: projects.length,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: filteredProjects.length,
                   itemBuilder: (context, index) {
                     return ListTile(
                       leading: Stack(
@@ -90,17 +151,19 @@ class _MyHomePageState extends State<MyHomePage> {
                         ],
                       ),
                       title: Text(
-                        projects[index]['name']!,
+                        filteredProjects[index]['name']!,
                         style: TextStyle(
                           fontFamily: 'Lato-Bold',
                           fontSize: 18,
+                          color: letraA,
                         ),
                       ),
                       subtitle: Text(
-                        projects[index]['description']!,
+                        filteredProjects[index]['description']!,
                         style: TextStyle(
                           fontFamily: 'Lato-Light',
                           fontSize: 15,
+                          color: letraA,
                         ),
                       ),
                       trailing: Row(
@@ -135,7 +198,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         ],
                       ),
                       onTap: () {
-                        _navigateToProjectDetailPage(context, projects[index]);
+                        _navigateToProjectDetailPage(
+                            context, filteredProjects[index]);
                       },
                     );
                   },
@@ -165,8 +229,8 @@ class _MyHomePageState extends State<MyHomePage> {
             label: "Nueva tarea",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: Colors.white),
-            label: "Perfil",
+            icon: Icon(Icons.settings, color: Colors.white),
+            label: "Configuración",
           ),
         ],
         backgroundColor: colorpage,
@@ -184,6 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (result != null) {
       setState(() {
         projects.add(result);
+        filteredProjects = projects;
       });
     }
   }
@@ -192,17 +257,19 @@ class _MyHomePageState extends State<MyHomePage> {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MyPerfilPage(title: ''),
+        builder: (context) => MyConfigurationPage(title: ''),
       ),
     );
     if (result != null) {
       setState(() {
         projects.add(result);
+        filteredProjects = projects;
       });
     }
   }
 
-  void _navigateToProjectDetailPage(BuildContext context, Map<String, String> project) {
+  void _navigateToProjectDetailPage(
+      BuildContext context, Map<String, String> project) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -211,4 +278,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-

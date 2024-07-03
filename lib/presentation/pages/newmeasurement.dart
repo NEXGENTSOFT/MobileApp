@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:TopoSmart/presentation/pages/principalpage.dart'; // Importa tus dependencias necesarias
+import 'package:flutter/services.dart';
+import 'package:TopoSmart/presentation/pages/principalpage.dart';
 
 class MyNewMeaPage extends StatefulWidget {
   const MyNewMeaPage({Key? key, required this.title});
@@ -22,6 +23,26 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
   Color letraA = Color(0xFF22223B);
   Color uno = Color(0xFFF2E9E4);
   Color label = Color(0xFFB78471);
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    super.dispose();
+  }
 
   void _saveData() {
     Map<String, String> newData = {
@@ -77,6 +98,10 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
             SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: estController,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
               decoration: InputDecoration(
                 filled: true,
                 fillColor: label.withOpacity(0.5),
@@ -116,6 +141,10 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
             SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: plusController,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
               decoration: InputDecoration(
                 filled: true,
                 fillColor: label.withOpacity(0.5),
@@ -155,6 +184,10 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
             SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: kController,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
               decoration: InputDecoration(
                 filled: true,
                 fillColor: label.withOpacity(0.5),
@@ -194,6 +227,10 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
             SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: minusController,
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
               decoration: InputDecoration(
                 filled: true,
                 fillColor: label.withOpacity(0.5),
