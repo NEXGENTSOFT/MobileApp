@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:TopoSmart/presentation/pages/perfilpage.dart';
 import 'package:TopoSmart/presentation/pages/principalpage.dart';
 import 'package:TopoSmart/presentation/pages/policiespages.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class MyConfigurationPage extends StatefulWidget {
   const MyConfigurationPage({super.key, required this.title});
@@ -58,12 +60,17 @@ class _MyConfigurationPageState extends State<MyConfigurationPage> {
           ),
           Divider(),
           ListTile(
-            title: Text('Acerca de nosotros', style: TextStyle(
+            title: Text(
+              'Acerca de nosotros',
+              style: TextStyle(
                 fontFamily: 'Lato-Light',
-                fontSize: 18, color: letraA
-            ),),  leading: Icon(Icons.help, color: letraA,),
+                fontSize: 18,
+                color: letraA,
+              ),
+            ),
+            leading: Icon(Icons.help, color: letraA),
             onTap: () {
-              // Acción al presionar el ítem de preferencias
+              _launchURL('https://nexgensoft.ddnsking.com');
             },
           ),
          Divider(),
@@ -99,5 +106,12 @@ class _MyConfigurationPageState extends State<MyConfigurationPage> {
         ],
       ),
     );
+  }
+
+  void _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri)) {
+      throw 'No se pudo lanzar $url';
+    }
   }
 }

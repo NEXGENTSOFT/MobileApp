@@ -4,6 +4,7 @@ import 'package:TopoSmart/presentation/pages/measurementpage.dart';
 import 'package:TopoSmart/presentation/pages/camarapage.dart';
 import 'package:TopoSmart/presentation/pages/reportpage.dart';
 import 'package:TopoSmart/presentation/pages/camaredeletepage.dart';
+import 'package:TopoSmart/presentation/pages/savedrawingpage.dart';
 import 'dart:io';
 
 class MyProjectPage extends StatefulWidget {
@@ -134,7 +135,7 @@ class _MyProjectPageState extends State<MyProjectPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DrawingPage(),
+                    builder: (context) => SavedDrawingsPage(),
                   ),
                 );
               },

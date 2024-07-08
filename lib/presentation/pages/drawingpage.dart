@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:math' as math;
+import 'package:TopoSmart/domain/models/savedrawingmodel.dart';
+import 'package:TopoSmart/presentation/components/shapepainter.dart';
 
 class DrawingPage extends StatefulWidget {
   @override
@@ -8,7 +11,6 @@ class DrawingPage extends StatefulWidget {
 
 class _DrawingPageState extends State<DrawingPage> {
   Color uno = Color(0xFFF2E9E4);
-
   List<DrawnShape> shapes = [];
   String selectedTool = 'Pencil';
   Offset? startPosition;
@@ -22,19 +24,26 @@ class _DrawingPageState extends State<DrawingPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(''), backgroundColor: uno,
+        title: Text('Crear Dibujo'),
+        backgroundColor: uno,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () {
+              // Guardar el dibujo usando el modelo correspondiente (SavedDrawingsModel)
+              Provider.of<SavedDrawingsModel>(context, listen: false).addDrawing(shapes);
+              Navigator.pop(context); // Regresar a la página anterior
+            },
+          ),
+        ],
       ),
-      body:
-      Column(
+      body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-
           Row(
-
             children: [
-              SizedBox(width: screenWidth * 0.1,
-              ),
+              SizedBox(width: screenWidth * 0.1),
               IconButton(
                 icon: Icon(Icons.text_fields),
                 onPressed: () async {
@@ -65,11 +74,13 @@ class _DrawingPageState extends State<DrawingPage> {
               ),
               IconButton(
                 icon: Icon(Icons.undo),
-                onPressed: () => setState(() {
+                onPressed: () {
                   if (shapes.isNotEmpty) {
-                    shapes.removeLast();
+                    setState(() {
+                      shapes.removeLast();
+                    });
                   }
-                }),
+                },
               ),
             ],
           ),
@@ -77,8 +88,7 @@ class _DrawingPageState extends State<DrawingPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(width: screenWidth * 0.05,
-              ),
+              SizedBox(width: screenWidth * 0.05),
               Text('Tamaño:'),
               Expanded(
                 child: Slider(
@@ -241,109 +251,34 @@ class _DrawingPageState extends State<DrawingPage> {
       Rect shapeRect = Rect.fromPoints(shape.start!, shape.end!);
       return shapeRect.contains(eraserCenter);
     } else if (shape.type == ShapeType.circle) {
-      double radius = (shape.start! - shape.end!).distance / 2;
+      double radius = (shape.end!.dy - shape.start!.dy) / 2;
       Offset center = Offset(
-        (shape.start!.dx + shape.end!.dx) / 2,
-        (shape.start!.dy + shape.end!.dy) / 2,
-      );
-      return (center - eraserCenter).distance <= radius;
+          (shape.start!.dx + shape.end!.dx) / 2,
+          (shape.start!.dy + shape.end!.dy) / 2);
+      return (eraserCenter.dx - center.dx) * (eraserCenter.dx - center.dx) +
+          (eraserCenter.dy - center.dy) * (eraserCenter.dy - center.dy) <
+          radius * radius;
     } else if (shape.type == ShapeType.text) {
-      // Implement text erasing logic if needed
-      return false;
+      return (eraserCenter.dx - shape.start!.dx) *
+          (eraserCenter.dx - shape.start!.dx) +
+          (eraserCenter.dy - shape.start!.dy) *
+              (eraserCenter.dy - shape.start!.dy) <
+          brushSize * brushSize;
     } else if (shape.type == ShapeType.line) {
-      return _isLineInEraser(eraserCenter, shape.start!, shape.end!);
+      double d1 = _distanceFromPointToLine(
+          eraserCenter, shape.start!, shape.end!);
+      return d1 < eraserSize / 2;
     }
     return false;
   }
 
-  bool _isLineInEraser(Offset eraserCenter, Offset p1, Offset p2) {
-    double distance1 = math.sqrt(math.pow(eraserCenter.dx - p1.dx, 2) +
-        math.pow(eraserCenter.dy - p1.dy, 2));
-    double distance2 = math.sqrt(math.pow(eraserCenter.dx - p2.dx, 2) +
-        math.pow(eraserCenter.dy - p2.dy, 2));
-    double lineLength = math.sqrt(math.pow(p1.dx - p2.dx, 2) +
-        math.pow(p1.dy - p2.dy, 2));
-    return distance1 + distance2 <= lineLength + eraserSize;
-  }
-}
-
-class DrawnShape {
-  List<Offset>? points;
-  Offset? start;
-  Offset? end;
-  String? text;
-  ShapeType type;
-  double size;
-
-  DrawnShape({
-    this.points,
-    this.start,
-    this.end,
-    this.text,
-    required this.type,
-    this.size = 2.0,
-  });
-}
-
-enum ShapeType { pencil, square, text, line, circle }
-
-class ShapePainter extends CustomPainter {
-  final List<DrawnShape> shapes;
-
-  ShapePainter({required this.shapes});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (var shape in shapes) {
-      final paint = Paint()
-        ..color = Colors.black
-        ..strokeWidth = shape.size
-        ..style = PaintingStyle.stroke;
-
-      if (shape.type == ShapeType.pencil && shape.points != null) {
-        for (int i = 0; i < shape.points!.length - 1; i++) {
-          canvas.drawLine(shape.points![i], shape.points![i + 1], paint);
-        }
-      } else if (shape.type == ShapeType.square &&
-          shape.start != null &&
-          shape.end != null) {
-        canvas.drawRect(
-          Rect.fromPoints(shape.start!, shape.end!),
-          paint..style = PaintingStyle.stroke,
-        );
-      } else if (shape.type == ShapeType.circle &&
-          shape.start != null &&
-          shape.end != null) {
-        double radius =
-            (shape.start! - shape.end!).distance / 2;
-        Offset center = Offset(
-          (shape.start!.dx + shape.end!.dx) / 2,
-          (shape.start!.dy + shape.end!.dy) / 2,
-        );
-        canvas.drawCircle(center, radius, paint..style = PaintingStyle.stroke);
-      } else if (shape.type == ShapeType.line &&
-          shape.start != null &&
-          shape.end != null) {
-        canvas.drawLine(shape.start!, shape.end!, paint..style = PaintingStyle.stroke);
-      } else if (shape.type == ShapeType.text &&
-          shape.start != null &&
-          shape.text != null) {
-        final textSpan = TextSpan(
-          text: shape.text,
-          style: TextStyle(color: Colors.black, fontSize: shape.size),
-        );
-        final textPainter = TextPainter(
-          text: textSpan,
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout();
-        textPainter.paint(canvas, shape.start!);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  double _distanceFromPointToLine(Offset p, Offset l1, Offset l2) {
+    return (((l2.dy - l1.dy) * p.dx -
+        (l2.dx - l1.dx) * p.dy +
+        l2.dx * l1.dy -
+        l2.dy * l1.dx)
+        .abs() /
+        math.sqrt((l2.dy - l1.dy) * (l2.dy - l1.dy) +
+            (l2.dx - l1.dx) * (l2.dx - l1.dx)));
   }
 }
