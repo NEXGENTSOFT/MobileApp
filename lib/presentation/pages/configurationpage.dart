@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:TopoSmart/presentation/pages/perfilpage.dart';
 import 'package:TopoSmart/presentation/pages/principalpage.dart';
 import 'package:TopoSmart/presentation/pages/policiespages.dart';
+import 'package:TopoSmart/presentation/pages/paypalpage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -55,7 +56,8 @@ class _MyConfigurationPageState extends State<MyConfigurationPage> {
             ),),
             leading: Icon(Icons.attach_money, color: letraA,),
             onTap: () {
-              // Acción al presionar el ítem de notificaciones
+             /*Navigator.push(context, MaterialPageRoute(builder: (context) => MyPaypalPage()
+             ));*/
             },
           ),
           Divider(),
