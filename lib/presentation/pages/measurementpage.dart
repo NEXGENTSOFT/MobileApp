@@ -1,8 +1,5 @@
-import 'dart:math';
-import 'dart:ui';
-import 'package:flutter/services.dart';
-import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:TopoSmart/presentation/pages/newmeasurement.dart';
 
 class MyMeasurementPage extends StatefulWidget {
@@ -22,25 +19,24 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
 
   List<Map<String, String>> measurementData = [];
 
-
-
-
   @override
   void initState() {
     super.initState();
     // Forzar orientación horizontal
     SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
     ]);
   }
 
   @override
   void dispose() {
-    // Restablecer orientación cuando se salga de esta página
+    // Restablecer orientación a la configuración por defecto cuando se salga de esta página
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
     ]);
     super.dispose();
   }
@@ -182,6 +178,4 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
       ),
     );
   }
-
-
 }

@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       //debugShowCheckedModeBanner: false,
       initialRoute: '/', // Especifica la ruta inicial de la aplicación
       routes: {
-        '/': (context) => MyPrincipalPage(title: ''),
+        '/': (context) => MyPrincipalPage(title: '', message: '',),
         '/home': (context) => MyHomePage(title: ''),
         '/newp': (context) => MyNewProjectPage(title: ''),
       /* '/library': (context) => Dr(),

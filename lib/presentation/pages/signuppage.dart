@@ -504,7 +504,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                       // Aquí puedes manejar el registro exitoso, por ejemplo, enviando los datos al servidor
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MyPrincipalPage(title: '')),
+                        MaterialPageRoute(builder: (context) => MyPrincipalPage(title: '', message: '',)),
                       );
                     }
                   },

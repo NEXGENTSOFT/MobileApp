@@ -101,7 +101,7 @@ class _MyConfigurationPageState extends State<MyConfigurationPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MyPrincipalPage(title: ''),
+                  builder: (context) => MyPrincipalPage(title: '', message: '',),
                 ),
               );            },
           ),

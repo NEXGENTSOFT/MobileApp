@@ -1,4 +1,7 @@
+import 'package:TopoSmart/presentation/pages/principalpage.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MyNewProjectPage extends StatefulWidget {
   const MyNewProjectPage({super.key, required this.title});
@@ -26,10 +29,77 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
     super.dispose();
   }
 
+  Future<void> makePostRequest(String text) async {
+    var headers = {
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST', Uri.parse('http://literate-accurately-cockatoo.ngrok-free.app/correct'));
+    request.body = json.encode({
+      "text": text
+    });
+    request.headers.addAll(headers);
+
+    try {
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        String responseBody = await response.stream.bytesToString();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyPrincipalPage(message: 'Proyecto guardado exitosamente!', title: '',),
+          ),
+        );
+        print(responseBody);
+      } else if (response.statusCode == 307) {
+        // Manejo de redirección temporal
+        var redirectedUri = Uri.parse(response.headers['location']!);
+        var redirectedResponse = await http.post(
+          redirectedUri,
+          headers: headers,
+          body: request.body,
+        );
+
+        if (redirectedResponse.statusCode == 200) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MyPrincipalPage(message: 'Proyecto guardado exitosamente tras redirección!', title: '',),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MyPrincipalPage(message: 'Error al guardar el proyecto tras redirección.', title: '',),
+            ),
+          );
+        }
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyPrincipalPage(message: 'Error al guardar el proyecto.', title: '',),
+          ),
+        );
+        print('Error: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyPrincipalPage(message: 'Ocurrió un error inesperado.', title: '',),
+        ),
+      );
+      print('Exception occurred: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeigh = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: uno,
@@ -141,12 +211,15 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_nameController.text.isNotEmpty && _descriptionController.text.isNotEmpty) {
-                        Navigator.pop(context, {
+                        var data = {
                           'name': _nameController.text,
                           'description': _descriptionController.text,
-                        });
+                        };
+
+                        String combinedText = '${data['name']}: ${data['description']}';
+                        await makePostRequest(combinedText);
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -174,4 +247,3 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
     );
   }
 }
-

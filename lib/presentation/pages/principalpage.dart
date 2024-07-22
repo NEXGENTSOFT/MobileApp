@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:TopoSmart/presentation/pages/loginpage.dart';
 import 'package:TopoSmart/presentation/pages/signuppage.dart';
 
-
 class MyPrincipalPage extends StatefulWidget {
-  const MyPrincipalPage({super.key, required this.title});
+  const MyPrincipalPage({super.key, required this.title, required String message});
 
   final String title;
 
@@ -17,14 +16,12 @@ class _MyPrincipalPageState extends State<MyPrincipalPage> {
   Color buttonI = Color(0xFFC9ADA7);
   Color letraA = Color(0xFF22223B);
 
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeigh = MediaQuery.of(context).size.height;
 
     return Scaffold(
-
       body: Stack(
         children: [
           Column(
@@ -54,9 +51,9 @@ class _MyPrincipalPageState extends State<MyPrincipalPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                       Navigator.push(
+                        Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => MyLoginPage(title: '')), // Navega a la vista LoginPage
+                          MaterialPageRoute(builder: (context) => MyLoginPage(title: '')),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -64,45 +61,48 @@ class _MyPrincipalPageState extends State<MyPrincipalPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
                         ),
+                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                       ),
                       child: Text(
                         'Iniciar sesión',
-                        style: TextStyle(color: letraA, fontFamily: 'Lato-Regular', fontSize: 15),
+                        style: TextStyle(
+                          color: letraA,
+                          fontFamily: 'Lato-Regular',
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                     SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
-                       Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => MySignUpPage(title: '')),
-                      );
-                        },
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MySignUpPage(title: '')),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorpage,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
                         ),
+                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                       ),
                       child: Text(
                         'Registrarse',
-                        style: TextStyle(color: Colors.white, fontFamily: 'Lato-Regular', fontSize: 15),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Lato-Regular',
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-
             ],
           ),
-
         ],
       ),
     );
   }
 }
-
-
-
-
-

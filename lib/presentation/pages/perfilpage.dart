@@ -348,7 +348,7 @@ class _MyPerfilPageState extends State<MyPerfilPage> {
                            onPressed: () {
                              Navigator.push(
                                context,
-                               MaterialPageRoute(builder: (context) => MyPrincipalPage(title: '')),
+                               MaterialPageRoute(builder: (context) => MyPrincipalPage(title: '', message: '',)),
                              );
                            },
                            style: ElevatedButton.styleFrom(
