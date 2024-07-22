@@ -26,6 +26,12 @@ class _MyProjectPageState extends State<MyProjectPage> {
 
   List<File> imageFiles = [];
 
+  TextEditingController searchController = TextEditingController();
+
+  String sanitizeInput(String input) {
+    return input.replaceAll(RegExp(r'[\";--]'), '');
+    }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -79,7 +85,6 @@ class _MyProjectPageState extends State<MyProjectPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
                 if (imageFiles.isNotEmpty)
                   Expanded(
                     child: GridView.builder(

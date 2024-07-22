@@ -7,7 +7,7 @@ class MyPaypalPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '',
+      title: 'PayPal Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -36,11 +36,12 @@ class _PaypalPageState extends State<PaypalPage> {
       body: Center(
         child: TextButton(
           onPressed: () async {
+            // Navegar a la pantalla de PayPal Checkout
             Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) => PaypalCheckout(
                 sandboxMode: true,
-                clientId: "",
-                secretKey: "",
+                clientId: " ",
+                secretKey: " ",
                 returnURL: "success.snippetcoder.com",
                 cancelURL: "cancel.snippetcoder.com",
                 transactions: const [
@@ -55,10 +56,6 @@ class _PaypalPageState extends State<PaypalPage> {
                       }
                     },
                     "description": "The payment transaction description.",
-                    // "payment_options": {
-                    //   "allowed_payment_method":
-                    //       "INSTANT_FUNDING_SOURCE"
-                    // },
                     "item_list": {
                       "items": [
                         {
@@ -67,25 +64,13 @@ class _PaypalPageState extends State<PaypalPage> {
                           "price": '5',
                           "currency": "USD"
                         },
-                       /* {
+                        /* {
                           "name": "Pineapple",
                           "quantity": 5,
                           "price": '10',
                           "currency": "USD"
                         }*/
                       ],
-
-                      // shipping address is not required though
-                      //   "shipping_address": {
-                      //     "recipient_name": "Raman Singh",
-                      //     "line1": "Delhi",
-                      //     "line2": "",
-                      //     "city": "Delhi",
-                      //     "country_code": "IN",
-                      //     "postal_code": "11001",
-                      //     "phone": "+00000000",
-                      //     "state": "Texas"
-                      //  },
                     }
                   }
                 ],
@@ -99,6 +84,7 @@ class _PaypalPageState extends State<PaypalPage> {
                 },
                 onCancel: () {
                   print('cancelled:');
+                  Navigator.pop(context);
                 },
               ),
             ));
@@ -118,3 +104,4 @@ class _PaypalPageState extends State<PaypalPage> {
     );
   }
 }
+

@@ -3,6 +3,8 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' 
 import 'package:intl/intl.dart';
 import 'package:TopoSmart/presentation/pages/principalpage.dart';
 import 'package:TopoSmart/presentation/pages/loginpage.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class MySignUpPage extends StatefulWidget {
   const MySignUpPage({super.key, required this.title});
@@ -25,6 +27,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureTextPassword = true;
   bool _obscureTextConfirmPassword = true;
+  bool _isTermsAccepted = false;
 
   void _toggleObscureTextPassword() {
     setState(() {
@@ -53,6 +56,14 @@ class _MySignUpPageState extends State<MySignUpPage> {
       currentTime: DateTime.now(),
       locale: picker.LocaleType.en,
     );
+  }
+
+
+  void _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri)) {
+      throw 'No se pudo lanzar $url';
+    }
   }
 
   String? _validateName(String? value) {
@@ -111,6 +122,13 @@ class _MySignUpPageState extends State<MySignUpPage> {
     final age = currentDate.year - selectedDate.year;
     if (age < 18) {
       return 'Debe tener al menos 18 años';
+    }
+    return null;
+  }
+
+  String? _validateTerms(bool value) {
+    if (!value) {
+      return 'Debe aceptar los términos y condiciones';
     }
     return null;
   }
@@ -439,6 +457,38 @@ class _MySignUpPageState extends State<MySignUpPage> {
                   ),
                   style: TextStyle(color: letraA, fontSize: 13, fontFamily: "Lato-Light"),
                   validator: _validateDate,
+                ),
+                SizedBox(height: screenHeight * 0.03),
+                CheckboxListTile(
+                  title: Text("Aceptar términos y condiciones"),
+                  value: _isTermsAccepted,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _isTermsAccepted = newValue!;
+                    });
+                  },
+                  controlAffinity: ListTileControlAffinity.leading,
+                  activeColor: Colors.blue,
+                  checkColor: Colors.white,
+                  subtitle: !_isTermsAccepted
+                      ? Text(
+                    'Debe aceptar los términos y condiciones',
+                    style: TextStyle(color: Colors.red),
+                  )
+                      : null,
+                ),
+                TextButton(
+                  onPressed: () {
+                        _launchURL('https://nexgensoft.ddnsking.com');
+                  },
+                  child: Text(
+                    'Políticas de Privacidad ',
+                    style: TextStyle(
+                      color: letraA,
+                      fontFamily: 'Lato-Light',
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
                 SizedBox(height: screenHeight * 0.04),
                 ElevatedButton(

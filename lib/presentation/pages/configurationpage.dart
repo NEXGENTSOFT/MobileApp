@@ -56,8 +56,8 @@ class _MyConfigurationPageState extends State<MyConfigurationPage> {
             ),),
             leading: Icon(Icons.attach_money, color: letraA,),
             onTap: () {
-             /*Navigator.push(context, MaterialPageRoute(builder: (context) => MyPaypalPage()
-             ));*/
+             Navigator.push(context, MaterialPageRoute(builder: (context) => MyPaypalPage()
+             ));
             },
           ),
           Divider(),

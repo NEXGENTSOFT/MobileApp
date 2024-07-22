@@ -91,7 +91,7 @@ class _MyReportPageState extends State<MyReportPage> {
                       Container(
                         child:
                         Text(
-                          'Reporte que incluye \n imagnes ',
+                          'Reporte que incluye \n imagenes ',
                           textAlign: TextAlign.left,
                           style: TextStyle(
                             fontFamily: 'Lato',
@@ -145,7 +145,7 @@ class _MyReportPageState extends State<MyReportPage> {
                       Container(
                         child:
                         Text(
-                          'Reporte que incluye \n imagnes ',
+                          'Reporte que incluye \n dibujos \n y mediciones ',
                           textAlign: TextAlign.left,
                           style: TextStyle(
                             fontFamily: 'Lato',
@@ -199,7 +199,7 @@ class _MyReportPageState extends State<MyReportPage> {
                       Container(
                         child:
                         Text(
-                          'Reporte que incluye \n imagnes ',
+                          'Reporte que incluye \n imagenes y \n mediciones ',
                           textAlign: TextAlign.left,
                           style: TextStyle(
                             fontFamily: 'Lato',
@@ -253,7 +253,7 @@ class _MyReportPageState extends State<MyReportPage> {
                       Container(
                         child:
                         Text(
-                          'Reporte que incluye \n imagnes ',
+                          'Reporte que incluye \n todo ',
                           textAlign: TextAlign.left,
                           style: TextStyle(
                             fontFamily: 'Lato',

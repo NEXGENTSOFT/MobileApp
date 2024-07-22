@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:flutter/animation.dart';
@@ -20,6 +21,9 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
   Color uno = Color(0xFFF2E9E4);
 
   List<Map<String, String>> measurementData = [];
+
+
+
 
   @override
   void initState() {
@@ -70,7 +74,7 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
                 _buildTableRow([
                   _buildHeaderCell('EST', backgroundColor: enca),
                   _buildHeaderCell('+', backgroundColor: enca),
-                  _buildHeaderCell('K', backgroundColor: enca),
+                  _buildHeaderCell('ㅈ', backgroundColor: enca),
                   _buildHeaderCell('-', backgroundColor: enca),
                   _buildHeaderCell('Nota', backgroundColor: enca),
                   _buildHeaderCell('T', backgroundColor: enca),
@@ -82,7 +86,7 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
                   return _buildTableRow([
                     _buildDataCell(data['est'] ?? '', backgroundColor: com),
                     _buildDataCell(data['plus'] ?? '', backgroundColor: com),
-                    _buildDataCell(data['k'] ?? '', backgroundColor: com),
+                    _buildDataCell(data['ㅈ'] ?? '', backgroundColor: com),
                     _buildDataCell(data['minus'] ?? '', backgroundColor: com),
                     _buildDataCell(data['note'] ?? '', backgroundColor: com),
                     _buildDataCell('', backgroundColor: com),
@@ -178,4 +182,6 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
       ),
     );
   }
+
+
 }

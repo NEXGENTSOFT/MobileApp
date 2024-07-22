@@ -48,7 +48,7 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
     Map<String, String> newData = {
       'est': estController.text,
       'plus': plusController.text,
-      'k': kController.text,
+      'ㅈ': kController.text,
       'minus': minusController.text,
       'note': noteController.text,
     };
@@ -98,9 +98,9 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
             SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: estController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
+                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))
               ],
               decoration: InputDecoration(
                 filled: true,
@@ -141,9 +141,9 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
             SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: plusController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
+                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))
               ],
               decoration: InputDecoration(
                 filled: true,
@@ -174,7 +174,7 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'K',
+                'ㅈ',
                 style: TextStyle(
                   fontFamily: 'Lato-Right',
                   fontSize: 18,
@@ -184,9 +184,9 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
             SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: kController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
+                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))
               ],
               decoration: InputDecoration(
                 filled: true,
@@ -227,9 +227,9 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
             SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: minusController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
+                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$'))
               ],
               decoration: InputDecoration(
                 filled: true,
