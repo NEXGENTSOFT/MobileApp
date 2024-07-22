@@ -1,6 +1,11 @@
+import 'package:TopoSmart/presentation/pages/principalpage.dart';
 import 'package:flutter/material.dart';
 import 'package:TopoSmart/presentation/pages/signuppage.dart';
 import 'package:TopoSmart/presentation/pages/homepage.dart';
+import 'package:TopoSmart/presentation/providers/user_provider.dart';
+import 'package:provider/provider.dart';
+
+
 
 class MyLoginPage extends StatefulWidget {
   const MyLoginPage({super.key, required this.title});
@@ -20,7 +25,10 @@ class _MyLoginPageState extends State<MyLoginPage> {
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _email = TextEditingController();
   bool _obscureText = true;
+  bool _isEmailInValid = true;
+  bool _isPasswordInValid = true;
 
   void _toggleObscureText() {
     setState(() {
@@ -28,13 +36,13 @@ class _MyLoginPageState extends State<MyLoginPage> {
     });
   }
 
-  String? _validateName(String? value) {
+  String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Por favor ingrese su nombre';
+      return 'Por favor ingrese su correo electrónico';
     }
-    final nameExp = RegExp(r'^[a-zA-Z]+$');
-    if (!nameExp.hasMatch(value)) {
-      return 'El nombre solo debe contener letras';
+    final emailExp = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    if (!emailExp.hasMatch(value)) {
+      return 'Por favor ingrese un correo electrónico válido';
     }
     return null;
   }
@@ -101,7 +109,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Nombre',
+                  'Correo electronico',
                   style: TextStyle(
                     fontFamily: 'Lato-Right',
                     fontSize: 18,
@@ -111,7 +119,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
               SizedBox(height: screenHeigh * 0.01),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Nombre',
+                  labelText: 'Correo electronico',
                   filled: true,
                   fillColor: label.withOpacity(0.5),
                   border: OutlineInputBorder(
@@ -131,7 +139,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                   ),
                 ),
                 style: TextStyle(color: letraA, fontSize: 13, fontFamily: "Lato-Light"),
-                validator: _validateName,
+                validator: _validateEmail,
               ),
               SizedBox(height: screenHeigh * 0.03),
               Align(
