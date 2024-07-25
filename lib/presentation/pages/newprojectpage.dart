@@ -1,4 +1,3 @@
-import 'package:TopoSmart/presentation/pages/principalpage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -21,6 +20,7 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  String _responseMessage = ''; // Variable para el mensaje de respuesta
 
   @override
   void dispose() {
@@ -41,19 +41,18 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
 
     try {
       http.StreamedResponse response = await request.send();
+      print('Conexión establecida. Código de estado: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         String responseBody = await response.stream.bytesToString();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MyPrincipalPage(message: 'Proyecto guardado exitosamente!', title: '',),
-          ),
-        );
+        setState(() {
+          _responseMessage = 'Proyecto guardado exitosamente!';
+        });
         print(responseBody);
       } else if (response.statusCode == 307) {
         // Manejo de redirección temporal
         var redirectedUri = Uri.parse(response.headers['location']!);
+        print('Redirigiendo a: $redirectedUri');
         var redirectedResponse = await http.post(
           redirectedUri,
           headers: headers,
@@ -61,36 +60,26 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
         );
 
         if (redirectedResponse.statusCode == 200) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MyPrincipalPage(message: 'Proyecto guardado exitosamente tras redirección!', title: '',),
-            ),
-          );
+          setState(() {
+            _responseMessage = 'Proyecto guardado exitosamente tras redirección!';
+          });
+          print('Redirección exitosa.');
         } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MyPrincipalPage(message: 'Error al guardar el proyecto tras redirección.', title: '',),
-            ),
-          );
+          setState(() {
+            _responseMessage = 'Error al guardar el proyecto tras redirección.';
+          });
+          print('Error tras redirección: ${redirectedResponse.reasonPhrase}');
         }
       } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MyPrincipalPage(message: 'Error al guardar el proyecto.', title: '',),
-          ),
-        );
+        setState(() {
+          _responseMessage = 'Error al guardar el proyecto.';
+        });
         print('Error: ${response.reasonPhrase}');
       }
     } catch (e) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MyPrincipalPage(message: 'Ocurrió un error inesperado.', title: '',),
-        ),
-      );
+      setState(() {
+        _responseMessage = 'Ocurrió un error inesperado.';
+      });
       print('Exception occurred: $e');
     }
   }
@@ -205,6 +194,15 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
                 fontFamily: "Lato-Light",
               ),
             ),
+            SizedBox(height: screenHeigh * 0.04),
+            Text(
+              _responseMessage,
+              style: TextStyle(
+                color: _responseMessage.startsWith('Error') ? Colors.red : Colors.green,
+                fontSize: 16,
+                fontFamily: "Lato-Regular",
+              ),
+            ),
             SizedBox(height: screenHeigh * 0.1),
             Container(
               child: Center(
@@ -220,6 +218,8 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
 
                         String combinedText = '${data['name']}: ${data['description']}';
                         await makePostRequest(combinedText);
+
+                        Navigator.pop(context, data);
                       }
                     },
                     style: ElevatedButton.styleFrom(

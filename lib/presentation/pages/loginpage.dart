@@ -5,8 +5,6 @@ import 'package:TopoSmart/presentation/pages/homepage.dart';
 import 'package:TopoSmart/presentation/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
-
-
 class MyLoginPage extends StatefulWidget {
   const MyLoginPage({super.key, required this.title});
 
@@ -25,10 +23,12 @@ class _MyLoginPageState extends State<MyLoginPage> {
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _email = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+
   bool _obscureText = true;
-  bool _isEmailInValid = true;
-  bool _isPasswordInValid = true;
 
   void _toggleObscureText() {
     setState(() {
@@ -61,7 +61,24 @@ class _MyLoginPageState extends State<MyLoginPage> {
     return null;
   }
 
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      FocusScope.of(context).unfocus(); // Eliminar caché del teclado
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MyHomePage(title: '')),
+      );
+    }
+  }
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +135,8 @@ class _MyLoginPageState extends State<MyLoginPage> {
               ),
               SizedBox(height: screenHeigh * 0.01),
               TextFormField(
+                controller: _emailController,
+                focusNode: _emailFocusNode,
                 decoration: InputDecoration(
                   labelText: 'Correo electronico',
                   filled: true,
@@ -155,6 +174,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
               SizedBox(height: screenHeigh * 0.01),
               TextFormField(
                 controller: _passwordController,
+                focusNode: _passwordFocusNode,
                 obscureText: _obscureText,
                 decoration: InputDecoration(
                   labelText: 'Contraseña',
@@ -193,14 +213,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                 child: Column(
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => MyHomePage(title: '')),
-                          );
-                        }
-                      },
+                      onPressed: _submitForm,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: buttonIN,
                         shape: RoundedRectangleBorder(
@@ -215,6 +228,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                     SizedBox(height: screenHeigh * 0.01),
                     GestureDetector(
                       onTap: () {
+                        FocusScope.of(context).unfocus(); // Eliminar caché del teclado
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => MySignUpPage(title: '')),

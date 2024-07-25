@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as picker;
 import 'package:intl/intl.dart';
 import 'package:TopoSmart/presentation/pages/principalpage.dart';
@@ -25,6 +27,13 @@ class _MySignUpPageState extends State<MySignUpPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  TextEditingController name = TextEditingController();
+  TextEditingController last_name = TextEditingController();
+  TextEditingController username = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+  TextEditingController cpassword = TextEditingController();
+  TextEditingController birthdate = TextEditingController();
   bool _obscureTextPassword = true;
   bool _obscureTextConfirmPassword = true;
   bool _isTermsAccepted = false;
@@ -189,6 +198,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 TextFormField(
+                  controller: name,
                   decoration: InputDecoration(
                     labelText: 'Nombre',
                     filled: true,
@@ -225,6 +235,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 TextFormField(
+                  controller: last_name,
                   decoration: InputDecoration(
                     labelText: 'Apellido',
                     filled: true,
@@ -261,6 +272,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 TextFormField(
+                  controller: username,
                   decoration: InputDecoration(
                     labelText: 'Nombre de usuario',
                     filled: true,
@@ -297,6 +309,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 TextFormField(
+                  controller: email,
                   decoration: InputDecoration(
                     labelText: 'Correo Electrónico',
                     filled: true,
@@ -378,6 +391,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 TextFormField(
+                  controller: _passwordController,
                   obscureText: _obscureTextConfirmPassword,
                   decoration: InputDecoration(
                     labelText: 'Confirmar Contraseña',
@@ -500,8 +514,10 @@ class _MySignUpPageState extends State<MySignUpPage> {
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   ),
                   onPressed: () {
+
                     if (_formKey.currentState!.validate()) {
                       // Aquí puedes manejar el registro exitoso, por ejemplo, enviando los datos al servidor
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => MyPrincipalPage(title: '', message: '',)),
