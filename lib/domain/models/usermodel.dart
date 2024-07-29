@@ -1,4 +1,3 @@
-
 class UserModel {
   final String name;
   final String last_name;
@@ -14,29 +13,27 @@ class UserModel {
     required this.password,
     required this.username,
     required this.birthdate,
-
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
-      "name": String name,
-      "last_name": String last_name,
-      "email": String email,
-      "password": String password,
-      "username": String username,
-      "birthdate": String birthdate
-
-
+      'name': String name,
+      'last_name': String last_name,
+      'password': String password,
+      'username': String username,
+      'email': String email,
+      'birthdate' : String birthdate,
       } => UserModel(
-          name: name,
+        password: password,
           last_name: last_name,
-          email: email,
-          password: password,
+          name: name,
           username: username,
+          email: email,
           birthdate: birthdate,
+
       ),
-      _ => throw const FormatException('Failed'),
+      _ => throw const FormatException('Failed to load product.'),
     };
   }
 }

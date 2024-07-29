@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:TopoSmart/presentation/pages/principalpage.dart';
 import 'package:TopoSmart/presentation/pages/loginpage.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:TopoSmart/domain/models/usermodel.dart';
+import 'package:TopoSmart/serviceuser.dart';
 
 
 class MySignUpPage extends StatefulWidget {
@@ -37,6 +39,9 @@ class _MySignUpPageState extends State<MySignUpPage> {
   bool _obscureTextPassword = true;
   bool _obscureTextConfirmPassword = true;
   bool _isTermsAccepted = false;
+  final TextEditingController _passwordconController = TextEditingController();
+
+
 
   void _toggleObscureTextPassword() {
     setState(() {
@@ -391,7 +396,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                 ),
                 SizedBox(height: screenHeight * 0.01),
                 TextFormField(
-                  controller: _passwordController,
+                  controller: _passwordconController,
                   obscureText: _obscureTextConfirmPassword,
                   decoration: InputDecoration(
                     labelText: 'Confirmar Contraseña',
@@ -513,11 +518,37 @@ class _MySignUpPageState extends State<MySignUpPage> {
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
 
                     if (_formKey.currentState!.validate()) {
                       // Aquí puedes manejar el registro exitoso, por ejemplo, enviando los datos al servidor
+                      if (_formKey.currentState!.validate()) {
+                        print('Formulario válido');
+                        UserModel newUser = UserModel(
+                          name: name.text,
+                          last_name: last_name.text,
+                          email: email.text,
+                          password: _passwordController.text,
+                          username: username.text,
+                          birthdate: _dateController.text,
+                        );
 
+                        try {
+                          print('Intentando registrar usuario...');
+                          final token = await RegisterService().registerUser(
+                            name: name.text,
+                            last_name: last_name.text,
+                            email: email.text,
+                            password: _passwordController.text,
+                            username: username.text,
+                            birthdate: _dateController.text,
+                          );
+                        } catch (e) {
+                          print('Error: $e');
+                        }
+                      } else {
+                        print('Formulario no válido');
+                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => MyPrincipalPage(title: '', message: '',)),
@@ -535,11 +566,34 @@ class _MySignUpPageState extends State<MySignUpPage> {
                 ),
                 SizedBox(height: screenHeight * 0.02),
                 TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyLoginPage(title: '')),
-                    );
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      print('Formulario válido');
+                      UserModel newUser = UserModel(
+                        name: name.text,
+                        last_name: last_name.text,
+                        email: email.text,
+                        password: password.text,
+                        username: username.text,
+                        birthdate: _dateController.text,
+                      );
+
+                      try {
+                        print('Intentando registrar usuario...');
+                        final token = await RegisterService().registerUser(
+                          name: name.text,
+                          last_name: last_name.text,
+                          email: email.text,
+                          password: password.text,
+                          username: username.text,
+                          birthdate: _dateController.text,
+                        );
+                      } catch (e) {
+                        print('Error: $e');
+                      }
+                    } else {
+                      print('Formulario no válido');
+                    }
                   },
                   child: Text(
                     '¿Ya tienes una cuenta? Inicia sesión',
@@ -550,6 +604,7 @@ class _MySignUpPageState extends State<MySignUpPage> {
                     ),
                   ),
                 ),
+
               ],
             ),
           ),

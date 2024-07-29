@@ -4,6 +4,10 @@ import 'package:TopoSmart/presentation/pages/signuppage.dart';
 import 'package:TopoSmart/presentation/pages/homepage.dart';
 import 'package:TopoSmart/presentation/providers/user_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';  // Para manejar JSON
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyLoginPage extends StatefulWidget {
   const MyLoginPage({super.key, required this.title});
@@ -61,13 +65,43 @@ class _MyLoginPageState extends State<MyLoginPage> {
     return null;
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       FocusScope.of(context).unfocus(); // Eliminar caché del teclado
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => MyHomePage(title: '')),
+
+      final email = _emailController.text;
+      final password = _passwordController.text;
+
+      final response = await http.post(
+        Uri.parse('https://servidor-toposmart.zapto.org/usersmanagement/users/login'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
       );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // Guardar el token y los datos del usuario en SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', data['data']['token']);
+        await prefs.setString('user', jsonEncode(data['data']['user']));
+
+        // Navegar a la página principal
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyHomePage(title: '')),
+        );
+      } else {
+        // Si la respuesta no es 200 OK, muestra un mensaje de error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error en el inicio de sesión')),
+        );
+      }
     }
   }
 

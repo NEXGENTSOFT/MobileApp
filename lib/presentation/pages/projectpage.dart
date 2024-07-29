@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:TopoSmart/presentation/pages/drawingpage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // Para manejar JSON
+import 'dart:io';
+import 'package:TopoSmart/presentation/pages/camaredeletepage.dart';
+import 'package:TopoSmart/presentation/pages/savedrawingpage.dart';
 import 'package:TopoSmart/presentation/pages/measurementpage.dart';
 import 'package:TopoSmart/presentation/pages/camarapage.dart';
 import 'package:TopoSmart/presentation/pages/reportpage.dart';
-import 'package:TopoSmart/presentation/pages/camaredeletepage.dart';
-import 'package:TopoSmart/presentation/pages/savedrawingpage.dart';
-import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyProjectPage extends StatefulWidget {
   final Map<String, String> project;
@@ -30,7 +32,65 @@ class _MyProjectPageState extends State<MyProjectPage> {
 
   String sanitizeInput(String input) {
     return input.replaceAll(RegExp(r'[\";--]'), '');
+  }
+
+  Future<int?> getUserId() async {
+    // Obtener SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Obtener el JSON del usuario almacenado
+    String? userJson = prefs.getString('user');
+
+    if (userJson != null) {
+      // Decodificar el JSON a un mapa
+      Map<String, dynamic> user = jsonDecode(userJson);
+
+      // Obtener el id del usuario
+      return user['id'] != null ? int.tryParse(user['id'].toString()) : null;
+    } else {
+      print('No se encontraron datos del usuario.');
+      return null;
     }
+  }
+
+  Future<void> _fetchProjectData() async {
+    final userId = await getUserId();
+
+    if (userId != null) {
+      final response = await http.get(
+        Uri.parse('https://servidor-toposmart.zapto.org/usersmanagement/projects/users/$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Aquí puedes actualizar el estado con los datos recibidos
+        // Por ejemplo, si los datos contienen imágenes, puedes actualizar imageFiles
+        print('Datos del proyecto: $data');
+      } else {
+        // Manejar error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar los datos del proyecto')),
+        );
+      }
+    } else {
+      // Manejar caso donde el userId es nulo
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: No se encontró el ID del usuario')),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProjectData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fetchProjectData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,9 +124,10 @@ class _MyProjectPageState extends State<MyProjectPage> {
                         child: Text(
                           widget.project['name'] ?? 'Sin nombre',
                           style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.none, color: letraA
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.none,
+                            color: letraA,
                           ),
                         ),
                       ),
