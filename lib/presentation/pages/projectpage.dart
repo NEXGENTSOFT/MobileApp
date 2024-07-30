@@ -63,8 +63,6 @@ class _MyProjectPageState extends State<MyProjectPage> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Aquí puedes actualizar el estado con los datos recibidos
-        // Por ejemplo, si los datos contienen imágenes, puedes actualizar imageFiles
         print('Datos del proyecto: $data');
       } else {
         // Manejar error
@@ -83,12 +81,6 @@ class _MyProjectPageState extends State<MyProjectPage> {
   @override
   void initState() {
     super.initState();
-    _fetchProjectData();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
     _fetchProjectData();
   }
 

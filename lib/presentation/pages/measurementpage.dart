@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:TopoSmart/presentation/pages/newmeasurement.dart';
+import 'package:TopoSmart/measurementservices.dart';
+
+import 'newmeasurement.dart'; // Asegúrate de importar el servicio
 
 class MyMeasurementPage extends StatefulWidget {
   const MyMeasurementPage({Key? key, required this.title});
@@ -17,7 +19,7 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
   Color com = Color(0xFFC9ADA7);
   Color uno = Color(0xFFF2E9E4);
 
-  List<Map<String, String>> measurementData = [];
+  List<Map<String, dynamic>> measurementData = [];
 
   @override
   void initState() {
@@ -27,6 +29,7 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+    _fetchMeasurementData(); // Obtener los datos al iniciar
   }
 
   @override
@@ -39,6 +42,20 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
       DeviceOrientation.landscapeRight,
     ]);
     super.dispose();
+  }
+
+  Future<void> _fetchMeasurementData() async {
+    try {
+      Measurementservices measurementServices = Measurementservices();
+      final data = await measurementServices.getMeasurements();
+      setState(() {
+        measurementData = data;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar los datos: $e')),
+      );
+    }
   }
 
   void _updateMeasurementData(Map<String, String> newData) {
@@ -74,17 +91,17 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
                   _buildHeaderCell('-', backgroundColor: enca),
                   _buildHeaderCell('Nota', backgroundColor: enca),
                   _buildHeaderCell('T', backgroundColor: enca),
-                  _buildHeaderCell('', )
+                  _buildHeaderCell('', ),
                 ]),
                 ...measurementData.asMap().entries.map((entry) {
                   int index = entry.key;
-                  Map<String, String> data = entry.value;
+                  Map<String, dynamic> data = entry.value;
                   return _buildTableRow([
-                    _buildDataCell(data['est'] ?? '', backgroundColor: com),
-                    _buildDataCell(data['plus'] ?? '', backgroundColor: com),
-                    _buildDataCell(data['ㅈ'] ?? '', backgroundColor: com),
-                    _buildDataCell(data['minus'] ?? '', backgroundColor: com),
-                    _buildDataCell(data['note'] ?? '', backgroundColor: com),
+                    _buildDataCell(data['station']?.toString() ?? '', backgroundColor: com),
+                    _buildDataCell(data['plus']?.toString() ?? '', backgroundColor: com),
+                    _buildDataCell(data['fixedLevel']?.toString() ?? '', backgroundColor: com),
+                    _buildDataCell(data['minus']?.toString() ?? '', backgroundColor: com),
+                    _buildDataCell(data['notes'] ?? '', backgroundColor: com),
                     _buildDataCell('', backgroundColor: com),
                     _buildActionCell(index,),
                   ]);

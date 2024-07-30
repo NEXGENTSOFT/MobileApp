@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:TopoSmart/presentation/pages/principalpage.dart';
+import 'package:TopoSmart/measurementservices.dart'; // Importar la clase Measurementservices
 
 class MyNewMeaPage extends StatefulWidget {
   const MyNewMeaPage({Key? key, required this.title});
@@ -44,15 +45,41 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
     super.dispose();
   }
 
-  void _saveData() {
-    Map<String, String> newData = {
-      'est': estController.text,
-      'plus': plusController.text,
-      'ㅈ': kController.text,
-      'minus': minusController.text,
-      'note': noteController.text,
-    };
-    Navigator.pop(context, newData);
+  Future<void> _saveData() async {
+    if (_validateInputs()) {
+      try {
+        Measurementservices measurementServices = Measurementservices();
+        await measurementServices.newMeasu(
+          int.parse(estController.text),
+          int.parse(minusController.text),
+          int.parse(kController.text),
+          int.parse(plusController.text),
+          int.parse(estController.text),
+          noteController.text,
+          "project_id_placeholder", // Reemplaza esto con el ID del proyecto adecuado
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Datos guardados correctamente')),
+        );
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar los datos: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Por favor, completa todos los campos correctamente')),
+      );
+    }
+  }
+
+  bool _validateInputs() {
+    return estController.text.isNotEmpty &&
+        plusController.text.isNotEmpty &&
+        kController.text.isNotEmpty &&
+        minusController.text.isNotEmpty &&
+        noteController.text.isNotEmpty;
   }
 
   @override

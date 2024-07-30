@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:TopoSmart/projectservices.dart';
+
 
 class MyNewProjectPage extends StatefulWidget {
   const MyNewProjectPage({super.key, required this.title});
@@ -217,9 +219,23 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
                         };
 
                         String combinedText = '${data['name']}: ${data['description']}';
-                        await makePostRequest(combinedText);
 
-                        Navigator.pop(context, data);
+                        try {
+                          Projectservices projectServices = Projectservices();
+                          String token = await projectServices.proyectNew(
+                            data['name']!,
+                            data['description']!,
+                          );
+
+                          print('Token recibido: $token');
+
+                          Navigator.pop(context, data);
+                        } catch (e) {
+                          print('Error: $e');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error al crear el proyecto')),
+                          );
+                        }
                       }
                     },
                     style: ElevatedButton.styleFrom(

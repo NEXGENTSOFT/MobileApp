@@ -12,15 +12,16 @@ class ProyectModel {
   factory ProyectModel.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
-      "name": String name,
-      "description": String description,
-
+      'name': String name,
+      'description': String description,
 
       } => ProyectModel(
-        name: name,
-        description: description,
+          name: name,
+          description: description,
+
       ),
-      _ => throw const FormatException('Failed'),
+      _ => throw const FormatException('Failed to load product.'),
     };
   }
+
 }
