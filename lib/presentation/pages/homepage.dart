@@ -5,6 +5,9 @@ import 'package:TopoSmart/presentation/pages/editprojectpage.dart';
 import 'package:TopoSmart/presentation/pages/newprojectpage.dart';
 import 'package:TopoSmart/presentation/pages/projectpage.dart';
 import 'package:TopoSmart/presentation/pages/configurationpage.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -23,13 +26,77 @@ class _MyHomePageState extends State<MyHomePage> {
   Color label = Color(0xFFB78471);
 
   int _pagehome = 0;
-  List<Map<String, String>> projects = [];
-  List<Map<String, String>> filteredProjects = [];
+  List<Map<String, dynamic>> projects = [];
+  List<Map<String, dynamic>> filteredProjects = [];
 
   @override
   void initState() {
     super.initState();
-    filteredProjects = projects;
+    _fetchProjects();
+  }
+
+  Future<int?> getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userJson = prefs.getString('user');
+
+    if (userJson != null) {
+      Map<String, dynamic> user = jsonDecode(userJson);
+      return user['id'] != null ? int.tryParse(user['id'].toString()) : null;
+    } else {
+      print('No se encontraron datos del usuario.');
+      return null;
+    }
+  }
+
+  Future<void> _fetchProjects() async {
+    print("Fetching projects...");
+    int? userId = await getUserId();
+    if (userId == null) {
+      print('No se pudo obtener el ID del usuario.');
+      return;
+    }
+
+    try {
+      final response = await http.get(Uri.parse('https://servidor-toposmart.zapto.org/usersmanagement/projects/users/$userId'));
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        setState(() {
+          projects = List<Map<String, dynamic>>.from(responseData['data']);
+          filteredProjects = projects;
+          print("Projects loaded: $projects");
+        });
+      } else {
+        print('Failed to load projects. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception while fetching projects: $e');
+    }
+  }
+
+  Future<void> _deleteProject(int projectId) async {
+    int? userId = await getUserId();
+    if (userId == null) {
+      print('No se pudo obtener el ID del usuario.');
+      return;
+    }
+
+    try {
+      final url = Uri.parse('https://servidor-toposmart.zapto.org/usersmanagement/projects/users/$userId/$projectId');
+      print(url);
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          projects.removeWhere((project) => project['id'] == projectId);
+          filteredProjects = projects;
+        });
+        print('Project deleted successfully');
+      } else {
+        print('Failed to delete project. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception while deleting project: $e');
+    }
   }
 
   void _filterProjects(String query) {
@@ -39,8 +106,8 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         filteredProjects = projects
             .where((project) =>
-        project['name']!.toLowerCase().contains(query.toLowerCase()) ||
-            project['description']!.toLowerCase().contains(query.toLowerCase()))
+        project['name'].toLowerCase().contains(query.toLowerCase()) ||
+            project['description'].toLowerCase().contains(query.toLowerCase()))
             .toList();
       }
     });
@@ -49,7 +116,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeigh = MediaQuery.of(context).size.height;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: uno,
@@ -116,7 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                SizedBox(height: screenHeigh * 0.01),
+                SizedBox(height: screenHeight * 0.01),
                 filteredProjects.isEmpty
                     ? Text(
                   'No hay proyectos guardados',
@@ -148,7 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ],
                       ),
                       title: Text(
-                        filteredProjects[index]['name']!,
+                        filteredProjects[index]['name'],
                         style: TextStyle(
                           fontFamily: 'Lato-Bold',
                           fontSize: 18,
@@ -156,7 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       subtitle: Text(
-                        filteredProjects[index]['description']!,
+                        filteredProjects[index]['description'],
                         style: TextStyle(
                           fontFamily: 'Lato-Light',
                           fontSize: 15,
@@ -173,6 +241,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => MyEditProjectPage(
+                                    projectUUID: filteredProjects[index]['uuid'],
+                                    name: filteredProjects[index]['name'],
+                                    description: filteredProjects[index]['description'],
                                     title: 'Editar Proyecto',
                                   ),
                                 ),
@@ -180,6 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               if (result != null) {
                                 setState(() {
                                   projects[index] = result;
+                                  filteredProjects = projects;
                                 });
                               }
                             },
@@ -187,16 +259,36 @@ class _MyHomePageState extends State<MyHomePage> {
                           IconButton(
                             icon: Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              setState(() {
-                                projects.removeAt(index);
-                              });
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Confirmar eliminación'),
+                                    content: Text('¿Estás seguro de que deseas eliminar este proyecto?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: Text('Cancelar'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: Text('Eliminar'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          _deleteProject(filteredProjects[index]['id']);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
                             },
                           ),
                         ],
                       ),
                       onTap: () {
-                        _navigateToProjectDetailPage(
-                            context, filteredProjects[index]);
+                        _navigateToProjectDetailPage(context, filteredProjects[index]);
                       },
                     );
                   },
@@ -208,15 +300,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        onTap: (index) {
-          if (index == 0) {
-            _navigateToNewProjectPage(context);
-          } else {
-            setState(() {
-              _navigateToPerfilPage(context);
-            });
-          }
-        },
+        onTap: _onNavBarTapped,
         currentIndex: _pagehome,
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white,
@@ -233,6 +317,14 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: colorpage,
       ),
     );
+  }
+
+  void _onNavBarTapped(int index) {
+    if (index == 0) {
+      _navigateToNewProjectPage(context);
+    } else {
+      _navigateToPerfilPage(context);
+    }
   }
 
   Future<void> _navigateToNewProjectPage(BuildContext context) async {
@@ -265,12 +357,17 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void _navigateToProjectDetailPage(
-      BuildContext context, Map<String, String> project) {
+  void _navigateToProjectDetailPage(BuildContext context, Map<String, dynamic> project) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MyProjectPage(project: project),
+        builder: (context) => MyProjectPage(
+          project: {
+            'id': project['id'].toString(),
+            'name': project['name'].toString(),
+            'description': project['description'].toString(),
+          },
+        ),
       ),
     );
   }

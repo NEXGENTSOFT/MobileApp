@@ -7,7 +7,6 @@ import 'package:TopoSmart/presentation/pages/savedrawingpage.dart';
 import 'package:TopoSmart/presentation/pages/measurementpage.dart';
 import 'package:TopoSmart/presentation/pages/camarapage.dart';
 import 'package:TopoSmart/presentation/pages/reportpage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MyProjectPage extends StatefulWidget {
   final Map<String, String> project;
@@ -34,54 +33,10 @@ class _MyProjectPageState extends State<MyProjectPage> {
     return input.replaceAll(RegExp(r'[\";--]'), '');
   }
 
-  Future<int?> getUserId() async {
-    // Obtener SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Obtener el JSON del usuario almacenado
-    String? userJson = prefs.getString('user');
-
-    if (userJson != null) {
-      // Decodificar el JSON a un mapa
-      Map<String, dynamic> user = jsonDecode(userJson);
-
-      // Obtener el id del usuario
-      return user['id'] != null ? int.tryParse(user['id'].toString()) : null;
-    } else {
-      print('No se encontraron datos del usuario.');
-      return null;
-    }
-  }
-
-  Future<void> _fetchProjectData() async {
-    final userId = await getUserId();
-
-    if (userId != null) {
-      final response = await http.get(
-        Uri.parse('https://servidor-toposmart.zapto.org/usersmanagement/projects/users/$userId'),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print('Datos del proyecto: $data');
-      } else {
-        // Manejar error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar los datos del proyecto')),
-        );
-      }
-    } else {
-      // Manejar caso donde el userId es nulo
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: No se encontró el ID del usuario')),
-      );
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    _fetchProjectData();
   }
 
   @override

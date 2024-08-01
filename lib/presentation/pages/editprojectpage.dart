@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class MyEditProjectPage extends StatefulWidget {
-  const MyEditProjectPage({super.key, required this.title});
+  const MyEditProjectPage({
+    super.key,
+    required this.projectUUID,
+    required this.name,
+    required this.description,
+    required this.title,
+  });
 
+  final String projectUUID;
   final String title;
+  final String name;
+  final String description;
 
   @override
   State<MyEditProjectPage> createState() => _MyEditProjectPageState();
@@ -20,16 +31,61 @@ class _MyEditProjectPageState extends State<MyEditProjectPage> {
   final TextEditingController _descriptionController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Set initial values for the controllers
+    _nameController.text = widget.name;
+    _descriptionController.text = widget.description;
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
+  Future<void> _updateProject() async {
+    final String name = _nameController.text;
+    final String description = _descriptionController.text;
+
+    if (name.isEmpty || description.isEmpty) {
+      return;
+    }
+
+    try {
+      var url = Uri.parse('https://servidor-toposmart.zapto.org/projectsmanagement/projects');
+
+      var response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "uuid": widget.projectUUID,
+          "name": name,
+          "description": description,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print(response.body);
+        Navigator.pop(context, {
+          'name': name,
+          'description': description,
+        });
+      } else {
+        print('Failed to update project. Reason: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Exception while updating project: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeigh = MediaQuery.of(context).size.height;
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: uno,
@@ -41,7 +97,7 @@ class _MyEditProjectPageState extends State<MyEditProjectPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: screenHeigh * 0.1,
+              height: screenHeight * 0.1,
               child: Stack(
                 children: [
                   Text(
@@ -66,7 +122,7 @@ class _MyEditProjectPageState extends State<MyEditProjectPage> {
                 ),
               ),
             ),
-            SizedBox(height: screenHeigh * 0.01),
+            SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: _nameController,
               decoration: InputDecoration(
@@ -95,7 +151,7 @@ class _MyEditProjectPageState extends State<MyEditProjectPage> {
                 fontFamily: "Lato-Light",
               ),
             ),
-            SizedBox(height: screenHeigh * 0.04),
+            SizedBox(height: screenHeight * 0.04),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -106,7 +162,7 @@ class _MyEditProjectPageState extends State<MyEditProjectPage> {
                 ),
               ),
             ),
-            SizedBox(height: screenHeigh * 0.01),
+            SizedBox(height: screenHeight * 0.01),
             TextField(
               controller: _descriptionController,
               decoration: InputDecoration(
@@ -135,20 +191,13 @@ class _MyEditProjectPageState extends State<MyEditProjectPage> {
                 fontFamily: "Lato-Light",
               ),
             ),
-            SizedBox(height: screenHeigh * 0.1),
+            SizedBox(height: screenHeight * 0.1),
             Container(
               child: Center(
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_nameController.text.isNotEmpty && _descriptionController.text.isNotEmpty) {
-                        Navigator.pop(context, {
-                          'name': _nameController.text,
-                          'description': _descriptionController.text,
-                        });
-                      }
-                    },
+                    onPressed: _updateProject,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: buttonIN,
                       shape: RoundedRectangleBorder(
@@ -174,4 +223,3 @@ class _MyEditProjectPageState extends State<MyEditProjectPage> {
     );
   }
 }
-

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:TopoSmart/projectservices.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyNewProjectPage extends StatefulWidget {
   const MyNewProjectPage({super.key, required this.title});
@@ -24,6 +23,11 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
   final TextEditingController _descriptionController = TextEditingController();
   String _responseMessage = ''; // Variable para el mensaje de respuesta
 
+  // Variables para los datos de respuesta
+  int? _projectId;
+  String? _projectName;
+  String? _projectDescription;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -31,13 +35,35 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
     super.dispose();
   }
 
-  Future<void> makePostRequest(String text) async {
+  Future<int?> getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userJson = prefs.getString('user');
+
+    if (userJson != null) {
+      Map<String, dynamic> user = jsonDecode(userJson);
+      return user['id'] != null ? int.tryParse(user['id'].toString()) : null;
+    } else {
+      print('No se encontraron datos del usuario.');
+      return null;
+    }
+  }
+
+  Future<void> makePostRequest(String name, String description) async {
+    int? userId = await getUserId();
+    if (userId == null) {
+      setState(() {
+        _responseMessage = 'No se pudo recuperar el ID del usuario.';
+      });
+      return;
+    }
     var headers = {
       'Content-Type': 'application/json'
     };
-    var request = http.Request('POST', Uri.parse('http://literate-accurately-cockatoo.ngrok-free.app/correct'));
+    var request = http.Request('POST', Uri.parse('https://servidor-toposmart.zapto.org/projectsmanagement/projects'));
     request.body = json.encode({
-      "text": text
+      "userId": userId,
+      "name": name,
+      "description": description
     });
     request.headers.addAll(headers);
 
@@ -47,31 +73,17 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
 
       if (response.statusCode == 200) {
         String responseBody = await response.stream.bytesToString();
-        setState(() {
-          _responseMessage = 'Proyecto guardado exitosamente!';
-        });
-        print(responseBody);
-      } else if (response.statusCode == 307) {
-        // Manejo de redirección temporal
-        var redirectedUri = Uri.parse(response.headers['location']!);
-        print('Redirigiendo a: $redirectedUri');
-        var redirectedResponse = await http.post(
-          redirectedUri,
-          headers: headers,
-          body: request.body,
-        );
+        var responseData = json.decode(responseBody);
 
-        if (redirectedResponse.statusCode == 200) {
-          setState(() {
-            _responseMessage = 'Proyecto guardado exitosamente tras redirección!';
-          });
-          print('Redirección exitosa.');
-        } else {
-          setState(() {
-            _responseMessage = 'Error al guardar el proyecto tras redirección.';
-          });
-          print('Error tras redirección: ${redirectedResponse.reasonPhrase}');
-        }
+        // Guardar los datos de respuesta
+        setState(() {
+          var data = responseData['data'];
+          _projectId = data['id'];
+          _projectName = data['name'];
+          _projectDescription = data['description'];
+          _responseMessage = responseData['message'];
+        });
+        print('Datos recibidos: $_projectId, $_projectName, $_projectDescription');
       } else {
         setState(() {
           _responseMessage = 'Error al guardar el proyecto.';
@@ -213,29 +225,16 @@ class _MyNewProjectPageState extends State<MyNewProjectPage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       if (_nameController.text.isNotEmpty && _descriptionController.text.isNotEmpty) {
-                        var data = {
-                          'name': _nameController.text,
-                          'description': _descriptionController.text,
-                        };
+                        await makePostRequest(
+                          _nameController.text,
+                          _descriptionController.text,
+                        );
 
-                        String combinedText = '${data['name']}: ${data['description']}';
-
-                        try {
-                          Projectservices projectServices = Projectservices();
-                          String token = await projectServices.proyectNew(
-                            data['name']!,
-                            data['description']!,
-                          );
-
-                          print('Token recibido: $token');
-
-                          Navigator.pop(context, data);
-                        } catch (e) {
-                          print('Error: $e');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error al crear el proyecto')),
-                          );
-                        }
+                        Navigator.pop(context, {
+                          'id': _projectId,
+                          'name': _projectName,
+                          'description': _projectDescription,
+                        });
                       }
                     },
                     style: ElevatedButton.styleFrom(
