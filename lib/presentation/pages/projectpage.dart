@@ -7,6 +7,10 @@ import 'package:TopoSmart/presentation/pages/savedrawingpage.dart';
 import 'package:TopoSmart/presentation/pages/measurementpage.dart';
 import 'package:TopoSmart/presentation/pages/camarapage.dart';
 import 'package:TopoSmart/presentation/pages/reportpage.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // Para manejar JSON
+import 'dart:io'; // Asegúrate de importar la página de confirmación
 
 class MyProjectPage extends StatefulWidget {
   final Map<String, String> project;
@@ -25,18 +29,41 @@ class _MyProjectPageState extends State<MyProjectPage> {
   Color label = Color(0xFFB78471);
   int _pageproject = 0;
 
-  List<File> imageFiles = [];
-
-  TextEditingController searchController = TextEditingController();
-
-  String sanitizeInput(String input) {
-    return input.replaceAll(RegExp(r'[\";--]'), '');
-  }
-
+  List<Map<String, dynamic>> photos = []; // Lista para almacenar las fotos
 
   @override
   void initState() {
     super.initState();
+    _fetchPhotos(); // Obtener fotos cuando se inicialice la página
+  }
+
+  Future<void> _fetchPhotos() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://servidor-toposmart.zapto.org/projectsmanagement/photos/project/${widget.project['id']}'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> photoList = data['data'];
+        setState(() {
+          photos = photoList.map((item) {
+            return {
+              'id': item['id'],
+              'url': item['url'],
+              'name': item['name'],
+              'uuid': item['uuid'],
+            };
+          }).toList();
+        });
+      } else {
+        throw Exception('Error al cargar las fotos');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar las fotos: $e')),
+      );
+    }
   }
 
   @override
@@ -93,7 +120,7 @@ class _MyProjectPageState extends State<MyProjectPage> {
                     ],
                   ),
                 ),
-                if (imageFiles.isNotEmpty)
+                if (photos.isNotEmpty)
                   Expanded(
                     child: GridView.builder(
                       padding: EdgeInsets.all(10),
@@ -102,19 +129,23 @@ class _MyProjectPageState extends State<MyProjectPage> {
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
                       ),
-                      itemCount: imageFiles.length,
+                      itemCount: photos.length,
                       itemBuilder: (context, index) {
+                        final photo = photos[index];
                         return GestureDetector(
                           onTap: () async {
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ConfirmDeletePage(imageFile: imageFiles[index]),
+                                builder: (context) => ConfirmDeletePage(
+                                  photoUUID: photo['uuid'],
+                                  photoUrl: photo['url'],
+                                ),
                               ),
                             );
                             if (result == true) {
                               setState(() {
-                                imageFiles.removeAt(index);
+                                photos.removeAt(index);
                               });
                             }
                           },
@@ -122,8 +153,8 @@ class _MyProjectPageState extends State<MyProjectPage> {
                             margin: EdgeInsets.all(4),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(15.0),
-                              child: Image.file(
-                                imageFiles[index],
+                              child: Image.network(
+                                photo['url'],
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -170,12 +201,15 @@ class _MyProjectPageState extends State<MyProjectPage> {
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MyCameraPage(),
+                    builder: (context) => MyCameraPage(projectId: widget.project['id'] ?? 'id generico'),
                   ),
                 );
                 if (result != null && result is File) {
                   setState(() {
-                    imageFiles.add(result);
+                    // Deberás subir la foto y actualizar la lista de fotos aquí
+                    // Ejemplo:
+                    // _uploadPhoto(result); // Implementa este método para subir la foto
+                    // _fetchPhotos(); // Actualiza la lista de fotos después de subir
                   });
                 }
               },

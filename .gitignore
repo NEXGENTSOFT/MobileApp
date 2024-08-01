@@ -9,6 +9,13 @@
 .history
 .svn/
 migrate_working_dir/
+.gitattributes
+.gradle/
+app/
+gradle/
+gradlew
+gradlew.bat
+settings.gradle.kts
 
 # IntelliJ related
 *.iml
