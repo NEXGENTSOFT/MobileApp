@@ -159,7 +159,7 @@ class _MyProjectPageState extends State<MyProjectPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MyMeasurementPage(title: ''),
+                    builder: (context) => MyMeasurementPage(title: '', id: widget.project['id'] ?? 'id generico'),
                   ),
                 );
               },

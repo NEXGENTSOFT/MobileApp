@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:TopoSmart/presentation/pages/principalpage.dart';
-import 'package:TopoSmart/measurementservices.dart'; // Importar la clase Measurementservices
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MyNewMeaPage extends StatefulWidget {
-  const MyNewMeaPage({Key? key, required this.title});
+  const MyNewMeaPage({Key? key, required this.title, required this.projectId}) : super(key: key);
 
   final String title;
+  final String projectId; // Asegúrate de pasar el projectId cuando navegues a esta página
 
   @override
   State<MyNewMeaPage> createState() => _MyNewMeaPageState();
@@ -18,6 +19,8 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
   TextEditingController kController = TextEditingController();
   TextEditingController minusController = TextEditingController();
   TextEditingController noteController = TextEditingController();
+
+  bool _isSubmitting = false; // Añadido para controlar el estado del botón
 
   Color colorpage = Color(0xFF4A4E69);
   Color buttonIN = Color(0xFFD2A351);
@@ -46,26 +49,44 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
   }
 
   Future<void> _saveData() async {
-    if (_validateInputs()) {
+    if (_validateInputs() && !_isSubmitting) {
+      setState(() {
+        _isSubmitting = true;
+      });
+
       try {
-        Measurementservices measurementServices = Measurementservices();
-        await measurementServices.newMeasu(
-          int.parse(estController.text),
-          int.parse(minusController.text),
-          int.parse(kController.text),
-          int.parse(plusController.text),
-          int.parse(estController.text),
-          noteController.text,
-          "project_id_placeholder", // Reemplaza esto con el ID del proyecto adecuado
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Datos guardados correctamente')),
-        );
-        Navigator.pop(context);
+        var headers = {
+          'Content-Type': 'application/json'
+        };
+        var request = http.Request('POST', Uri.parse('https://servidor-toposmart.zapto.org/projectsmanagement/measurements'));
+        request.body = json.encode({
+          "station": estController.text,
+          "minus": double.parse(minusController.text),
+          "fixedLevel": double.parse(kController.text),
+          "plus": double.parse(plusController.text),
+          "notes": noteController.text,
+          "projectId": widget.projectId, // Usar el projectId pasado a la página
+        });
+        request.headers.addAll(headers);
+
+        http.StreamedResponse response = await request.send();
+
+        if (response.statusCode == 200) {
+          var responseData = json.decode(await response.stream.bytesToString());
+          Navigator.pop(context, responseData['data']);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al guardar los datos: ${response.reasonPhrase}')),
+          );
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al guardar los datos: $e')),
         );
+      } finally {
+        setState(() {
+          _isSubmitting = false; // Rehabilitar el botón en caso de error
+        });
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -101,7 +122,7 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
               child: Stack(
                 children: [
                   Text(
-                    'Nuevo proyecto',
+                    'Nueva medición',
                     textAlign: TextAlign.left,
                     style: TextStyle(
                       fontFamily: 'Lato',
@@ -256,7 +277,7 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
               controller: minusController,
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$'))
+                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))
               ],
               decoration: InputDecoration(
                 filled: true,
@@ -328,7 +349,7 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _saveData,
+                    onPressed: _isSubmitting ? null : _saveData, // Deshabilitar el botón si _isSubmitting es true
                     style: ElevatedButton.styleFrom(
                       backgroundColor: buttonIN,
                       shape: RoundedRectangleBorder(
@@ -337,7 +358,7 @@ class _MyNewMeaPageState extends State<MyNewMeaPage> {
                       padding: EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      'Guardar',
+                      _isSubmitting ? 'Guardando...' : 'Guardar',
                       style: TextStyle(
                         color: Colors.white,
                         fontFamily: "Lato-Regular",

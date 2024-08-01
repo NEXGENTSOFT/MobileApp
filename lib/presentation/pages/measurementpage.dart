@@ -1,13 +1,14 @@
+import 'package:TopoSmart/presentation/pages/newmeasurement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:TopoSmart/measurementservices.dart';
-
-import 'newmeasurement.dart'; // Asegúrate de importar el servicio
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // Para manejar JSON
 
 class MyMeasurementPage extends StatefulWidget {
-  const MyMeasurementPage({Key? key, required this.title});
+  const MyMeasurementPage({Key? key, required this.title, required this.id});
 
   final String title;
+  final String id;
 
   @override
   _MyMeasurementPageState createState() => _MyMeasurementPageState();
@@ -38,19 +39,35 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
     ]);
     super.dispose();
   }
 
   Future<void> _fetchMeasurementData() async {
     try {
-      Measurementservices measurementServices = Measurementservices();
-      final data = await measurementServices.getMeasurements();
-      setState(() {
-        measurementData = data;
-      });
+      final response = await http.get(
+        Uri.parse('https://servidor-toposmart.zapto.org/projectsmanagement/measurements/list/${widget.id}'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> measurements = data['data'];
+        setState(() {
+          measurementData = measurements.map((item) {
+            return {
+              'uuid': item['uuid'], // Añadir el UUID de la medición
+              'station': item['station'] ?? '',
+              'plus': item['plus']?.toString() ?? '',
+              'fixedLevel': item['fixedLevel']?.toString() ?? '',
+              'minus': item['minus']?.toString() ?? '',
+              'notes': item['note'] ?? '',
+              'height': item['height']?.toString() ?? '',
+            };
+          }).toList();
+        });
+      } else {
+        throw Exception('Error al cargar los datos');
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al cargar los datos: $e')),
@@ -62,6 +79,46 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
     setState(() {
       measurementData.add(newData);
     });
+  }
+
+  Future<void> _navigateToNewMeasurementPage(BuildContext context) async {
+    var result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyNewMeaPage(title: 'Nueva medición', projectId: widget.id,),
+      ),
+    );
+
+    if (result != null) {
+      _updateMeasurementData(result);
+    }
+  }
+
+  Future<void> _deleteMeasurement(String measurementUuid, int index) async {
+    try {
+      var response = await http.delete(
+        Uri.parse('https://servidor-toposmart.zapto.org/projectsmanagement/measurements/$measurementUuid'),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          measurementData.removeAt(index);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Medición eliminada')),
+        );
+      } else {
+        print('Error al eliminar la medición: ${response.reasonPhrase}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al eliminar la medición')),
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al eliminar la medición')),
+      );
+    }
   }
 
   @override
@@ -90,8 +147,8 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
                   _buildHeaderCell('ㅈ', backgroundColor: enca),
                   _buildHeaderCell('-', backgroundColor: enca),
                   _buildHeaderCell('Nota', backgroundColor: enca),
-                  _buildHeaderCell('T', backgroundColor: enca),
-                  _buildHeaderCell('', ),
+                  _buildHeaderCell('T', backgroundColor: enca), // Nueva columna 'Height'
+                  _buildHeaderCell(''),
                 ]),
                 ...measurementData.asMap().entries.map((entry) {
                   int index = entry.key;
@@ -102,8 +159,8 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
                     _buildDataCell(data['fixedLevel']?.toString() ?? '', backgroundColor: com),
                     _buildDataCell(data['minus']?.toString() ?? '', backgroundColor: com),
                     _buildDataCell(data['notes'] ?? '', backgroundColor: com),
-                    _buildDataCell('', backgroundColor: com),
-                    _buildActionCell(index,),
+                    _buildDataCell(data['height']?.toString() ?? '', backgroundColor: com), // Nueva columna 'Height'
+                    _buildActionCell(data['uuid'], index), // Pasar el UUID y el índice
                   ]);
                 }),
               ],
@@ -118,18 +175,7 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
           children: [
             IconButton(
               icon: Icon(Icons.add_circle_outline, color: Colors.white, size: 30),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MyNewMeaPage(title: 'Nuevo Proyecto'),
-                  ),
-                ).then((newData) {
-                  if (newData != null) {
-                    _updateMeasurementData(newData);
-                  }
-                });
-              },
+              onPressed: () => _navigateToNewMeasurementPage(context),
             ),
           ],
         ),
@@ -181,16 +227,37 @@ class _MyMeasurementPageState extends State<MyMeasurementPage> {
     );
   }
 
-  Widget _buildActionCell(int index, {Color backgroundColor = Colors.transparent}) {
+  Widget _buildActionCell(String measurementUuid, int index) {
     return Container(
       padding: EdgeInsets.all(8),
-      color: backgroundColor,
+      color: Colors.transparent,
       child: IconButton(
         icon: Icon(Icons.delete, color: Colors.red),
         onPressed: () {
-          setState(() {
-            measurementData.removeAt(index);
-          });
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Confirmar eliminación'),
+                  content: Text('¿Estás seguro de que deseas eliminar esta medición?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _deleteMeasurement(measurementUuid, index);
+                      },
+                      child: Text('Eliminar'),
+                    ),
+                  ],
+                );
+              }
+          );
         },
       ),
     );
